@@ -374,10 +374,7 @@ public class EntityTask {
     }
 
     private boolean canSee(Player player, Entity entity) {
-        if (!player.isOnline()) {
-            return false;
-        }
-        if (player.isDead()) {
+        if (!player.isOnline() || player.isDead() || player.getWorld().equals(entity.getWorld())) {
             return false;
         }
         if (GeyserModelEngine.getInstance().getJoinedPlayer() != null && GeyserModelEngine.getInstance().getJoinedPlayer().getIfPresent(player) != null) {
