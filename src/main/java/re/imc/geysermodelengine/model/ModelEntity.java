@@ -1,20 +1,20 @@
 package re.imc.geysermodelengine.model;
 
+import com.google.common.collect.Sets;
+import com.ticxo.modelengine.api.model.ActiveModel;
+import com.ticxo.modelengine.api.model.ModeledEntity;
+import lombok.Getter;
+import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
+import re.imc.geysermodelengine.GeyserModelEngine;
+import re.imc.geysermodelengine.packet.entity.PacketEntity;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
-import com.google.common.collect.Sets;
-import com.ticxo.modelengine.api.model.ActiveModel;
-import com.ticxo.modelengine.api.model.ModeledEntity;
-
-import lombok.Getter;
-import re.imc.geysermodelengine.GeyserModelEngine;
-import re.imc.geysermodelengine.packet.entity.PacketEntity;
 
 @Getter
 public class ModelEntity {
@@ -44,13 +44,12 @@ public class ModelEntity {
         Location location = modeledEntity.getBase().getLocation();
         entity.teleport(location);
     }
-
     public static ModelEntity create(ModeledEntity entity, ActiveModel model) {
         ModelEntity modelEntity = new ModelEntity(entity, model);
         int id = entity.getBase().getEntityId();
         Map<ActiveModel, ModelEntity> map = ENTITIES.computeIfAbsent(id, k -> new HashMap<>());
         for (Map.Entry<ActiveModel, ModelEntity> entry : map.entrySet()) {
-            if (entry.getKey() != model && entry.getKey().getBlueprint().getName().equals(model.getBlueprint().getName())) {
+            if (entry.getKey() !=  model && entry.getKey().getBlueprint().getName().equals(model.getBlueprint().getName())) {
                 return null;
             }
         }
