@@ -1,29 +1,31 @@
 package re.imc.geysermodelengine.model;
 
-import com.ticxo.modelengine.api.animation.BlueprintAnimation;
-import com.ticxo.modelengine.api.entity.BaseEntity;
-import com.ticxo.modelengine.api.model.ActiveModel;
-import com.ticxo.modelengine.api.model.ModeledEntity;
-import com.ticxo.modelengine.api.model.bone.ModelBone;
-import lombok.Getter;
-import lombok.Setter;
-import me.zimzaza4.geyserutils.common.animation.Animation;
-import me.zimzaza4.geyserutils.spigot.api.PlayerUtils;
+import java.awt.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.joml.Vector3f;
+
+import com.ticxo.modelengine.api.animation.BlueprintAnimation;
+import com.ticxo.modelengine.api.entity.BaseEntity;
+import com.ticxo.modelengine.api.model.ActiveModel;
+import com.ticxo.modelengine.api.model.ModeledEntity;
+import com.ticxo.modelengine.api.model.bone.ModelBone;
+
+import lombok.Getter;
+import lombok.Setter;
+import me.zimzaza4.geyserutils.common.animation.Animation;
+import me.zimzaza4.geyserutils.spigot.api.PlayerUtils;
 import re.imc.geysermodelengine.GeyserModelEngine;
-import re.imc.geysermodelengine.packet.entity.PacketEntity;
-
-import java.awt.*;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import static re.imc.geysermodelengine.model.ModelEntity.ENTITIES;
 import static re.imc.geysermodelengine.model.ModelEntity.MODEL_ENTITIES;
+import re.imc.geysermodelengine.packet.entity.PacketEntity;
 
 @Getter
 @Setter
@@ -59,6 +61,7 @@ public class EntityTask {
     public EntityTask(ModelEntity model) {
         this.model = model;
     }
+
     public void runAsync() {
         PacketEntity entity = model.getEntity();
         if (entity.isDead()) {
@@ -129,7 +132,7 @@ public class EntityTask {
             }
         }
 
-        tick ++;
+        tick++;
         if (tick > 400) {
             tick = 0;
             sendHitBoxToAll();
@@ -289,6 +292,7 @@ public class EntityTask {
     public int playAnimation(String animation, int p) {
         return playAnimation(animation, p, 0, false);
     }
+
     public int playAnimation(String animation, int p, float blendTime, boolean forceLoop) {
 
         ActiveModel activeModel = model.getActiveModel();
@@ -308,14 +312,14 @@ public class EntityTask {
         } else if (animationCooldown.get() == 0) {
             play = true;
         }
-        looping = forceLoop || animationProperty.getLoopMode() == BlueprintAnimation.LoopMode.LOOP;;
+        looping = forceLoop || animationProperty.getLoopMode() == BlueprintAnimation.LoopMode.LOOP;
+        ;
 
         if (lastAnimation.equals(animation)) {
             if (looping) {
                 play = false;
             }
         }
-
 
 
         if (play) {
@@ -353,7 +357,6 @@ public class EntityTask {
     }
 
 
-
     public void playBedrockAnimation(String animationId, Set<Player> viewers, boolean loop, float blendTime) {
 
         // model.getViewers().forEach(viewer -> viewer.sendActionBar("CURRENT AN:" + animationId));
@@ -374,7 +377,8 @@ public class EntityTask {
     }
 
     private boolean canSee(Player player, Entity entity) {
-        if (!player.isOnline() || player.isDead() || player.getWorld().equals(entity.getWorld())) {
+        if (!player.isOnline()
+            || player.isDead()) {
             return false;
         }
         if (GeyserModelEngine.getInstance().getJoinedPlayer() != null && GeyserModelEngine.getInstance().getJoinedPlayer().getIfPresent(player) != null) {
@@ -385,10 +389,15 @@ public class EntityTask {
             return true;
         }
 
-        if (player.getLocation().distanceSquared(entity.getLocation()) > player.getSimulationDistance() * player.getSimulationDistance() * 256) {
+        final Location playerLocation = player.getLocation();
+        final Location entityLocation = entity.getLocation();
+        if (!Objects.equals(playerLocation.getWorld(), entityLocation.getWorld()))
+            return false;
+
+        if (playerLocation.distanceSquared(entityLocation) > player.getSimulationDistance() * player.getSimulationDistance() * 256) {
             return false;
         }
-        if (player.getLocation().distance(entity.getLocation()) > GeyserModelEngine.getInstance().getViewDistance()) {
+        if (playerLocation.distance(entityLocation) > GeyserModelEngine.getInstance().getViewDistance()) {
             return false;
         }
         return true;
