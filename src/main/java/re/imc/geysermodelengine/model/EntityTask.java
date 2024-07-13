@@ -160,12 +160,12 @@ public class EntityTask {
         int delay = 1;
         boolean firstJoined = GeyserModelEngine.getInstance().getJoinedPlayer().getIfPresent(onlinePlayer) != null;
         if (firstJoined) {
-            delay = GeyserModelEngine.getInstance().getJoinSendDelay();
+            delay = GeyserModelEngine.getInstance().getConfiguration().joinSendDelay();
         }
         if (task == null || firstJoined) {
-            Bukkit.getScheduler().runTaskLaterAsynchronously(GeyserModelEngine.getInstance(), () -> model.getTask().sendEntityData(onlinePlayer, GeyserModelEngine.getInstance().getSendDelay()), delay);
+            Bukkit.getScheduler().runTaskLaterAsynchronously(GeyserModelEngine.getInstance(), () -> model.getTask().sendEntityData(onlinePlayer, GeyserModelEngine.getInstance().getConfiguration().dataSendDelay()), delay);
         } else {
-            task.sendEntityData(onlinePlayer, GeyserModelEngine.getInstance().getSendDelay());
+            task.sendEntityData(onlinePlayer, GeyserModelEngine.getInstance().getConfiguration().dataSendDelay());
         }
     }
 
@@ -345,7 +345,6 @@ public class EntityTask {
         for (Player viewer : viewers) {
             PlayerUtils.playEntityAnimation(viewer, animation.build(), entity);
         }
-
     }
 
     private boolean canSee(Player player, Entity entity) {
@@ -369,7 +368,7 @@ public class EntityTask {
         if (playerLocation.distanceSquared(entityLocation) > player.getSimulationDistance() * player.getSimulationDistance() * 256) {
             return false;
         }
-        if (playerLocation.distance(entityLocation) > GeyserModelEngine.getInstance().getViewDistance()) {
+        if (playerLocation.distance(entityLocation) > GeyserModelEngine.getInstance().getConfiguration().viewDistance()) {
             return false;
         }
         return true;

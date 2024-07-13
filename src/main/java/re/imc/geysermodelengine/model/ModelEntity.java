@@ -1,20 +1,20 @@
 package re.imc.geysermodelengine.model;
 
-import com.google.common.collect.Sets;
-import com.ticxo.modelengine.api.model.ActiveModel;
-import com.ticxo.modelengine.api.model.ModeledEntity;
-import lombok.Getter;
-import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.metadata.FixedMetadataValue;
-import re.imc.geysermodelengine.GeyserModelEngine;
-import re.imc.geysermodelengine.packet.entity.PacketEntity;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
+import com.google.common.collect.Sets;
+import com.ticxo.modelengine.api.model.ActiveModel;
+import com.ticxo.modelengine.api.model.ModeledEntity;
+
+import lombok.Getter;
+import re.imc.geysermodelengine.GeyserModelEngine;
+import re.imc.geysermodelengine.packet.entity.PacketEntity;
 
 @Getter
 public class ModelEntity {
@@ -39,6 +39,7 @@ public class ModelEntity {
         Location location = modeledEntity.getBase().getLocation();
         entity.teleport(location);
     }
+
     public static ModelEntity create(ModeledEntity entity, ActiveModel model) {
         ModelEntity modelEntity = new ModelEntity(entity, model);
         int id = entity.getBase().getEntityId();
@@ -54,7 +55,7 @@ public class ModelEntity {
     }
 
     public PacketEntity spawnEntity() {
-        entity = new PacketEntity(GeyserModelEngine.getInstance().getModelEntityType(), viewers, modeledEntity.getBase().getLocation());
+        entity = new PacketEntity(GeyserModelEngine.getInstance().getConfiguration().modelEntityType(), viewers, modeledEntity.getBase().getLocation());
         return entity;
     }
 

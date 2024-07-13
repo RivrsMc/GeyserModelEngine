@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -22,6 +21,7 @@ import com.ticxo.modelengine.api.model.ModeledEntity;
 import com.ticxo.modelengine.api.model.bone.type.Mount;
 
 import lombok.Getter;
+import re.imc.geysermodelengine.configuration.Configuration;
 import re.imc.geysermodelengine.listener.ModelListener;
 import re.imc.geysermodelengine.listener.MountPacketListener;
 import re.imc.geysermodelengine.model.ModelEntity;
@@ -31,15 +31,9 @@ public final class GeyserModelEngine extends JavaPlugin {
 
     @Getter
     private static GeyserModelEngine instance;
-    @Getter
-    private static boolean alwaysSendSkin;
 
-    private int sendDelay;
-    private int viewDistance;
-    private EntityType modelEntityType;
+    private Configuration configuration;
     private Cache<Player, Boolean> joinedPlayer;
-    private int joinSendDelay;
-    private boolean debug;
     private final Map<Player, Pair<ActiveModel, Mount>> drivers = new ConcurrentHashMap<>();
 
     @Getter
@@ -47,19 +41,19 @@ public final class GeyserModelEngine extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
-        saveDefaultConfig();
-
         // Config
-        sendDelay = getConfig().getInt("data-send-delay", 0);
-        viewDistance = getConfig().getInt("entity-view-distance", 60);
-        debug = getConfig().getBoolean("debug", false);
-        modelEntityType = EntityType.valueOf(getConfig().getString("model-entity-type", "BAT"));
-        joinSendDelay = getConfig().getInt("join-send-delay", 20);
-        if (joinSendDelay > 0) {
-            joinedPlayer = CacheBuilder.newBuilder()
-                    .expireAfterWrite(joinSendDelay * 50L, TimeUnit.MILLISECONDS).build();
+        this.configuration = new Configuration(this.getDataFolder().toPath().resolve("config.yml"));
+        this.configuration.load();
+
+        // Cache
+        if (this.configuration.joinSendDelay() > 0) {
+            this.joinedPlayer = CacheBuilder.newBuilder()
+                    .expireAfterWrite(this.configuration.joinSendDelay() * 50L, TimeUnit.MILLISECONDS).build();
+        } else {
+
         }
+
+        // Instance
         instance = this;
 
         // Packets listener
