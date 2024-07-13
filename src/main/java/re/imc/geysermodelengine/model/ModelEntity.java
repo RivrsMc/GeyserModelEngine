@@ -19,18 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 public class ModelEntity {
 
-    public static Map<Integer, Map<ActiveModel, ModelEntity>> ENTITIES = new ConcurrentHashMap<>();
-
-    public static Map<Integer, ModelEntity> MODEL_ENTITIES = new ConcurrentHashMap<>();
+    public static final Map<Integer, Map<ActiveModel, ModelEntity>> ENTITIES = new ConcurrentHashMap<>();
+    public static final Map<Integer, ModelEntity> MODEL_ENTITIES = new ConcurrentHashMap<>();
 
     private PacketEntity entity;
-
     private final Set<Player> viewers = Sets.newConcurrentHashSet();
-
     private final ModeledEntity modeledEntity;
-
     private final ActiveModel activeModel;
-
     private EntityTask task;
 
     private ModelEntity(ModeledEntity modeledEntity, ActiveModel model) {
