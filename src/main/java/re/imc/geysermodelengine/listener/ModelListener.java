@@ -57,7 +57,6 @@ public class ModelListener implements Listener {
         }
     }
 
-
     @EventHandler
     public void onAnimationPlay(AnimationPlayEvent event) {
         if (event.getModel().getModeledEntity() == null) {

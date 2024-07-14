@@ -4,7 +4,9 @@ main: re.imc.geysermodelengine.GeyserModelEngine
 authors:
   - zimzaza4
   - willem.dev
+  - Roch Blondiaux
 api-version: '1.19'
 depend:
   - ModelEngine
   - floodgate
+  - BedrockCore

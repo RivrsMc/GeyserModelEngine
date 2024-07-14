@@ -1,9 +1,12 @@
 package re.imc.geysermodelengine.packet.entity;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import io.papermc.paper.entity.TeleportFlag;
-import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
-import net.kyori.adventure.text.Component;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.PistonMoveReaction;
@@ -21,13 +24,23 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import com.comphenix.protocol.ProtocolLibrary;
+
+import io.papermc.paper.entity.TeleportFlag;
+import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
+import net.kyori.adventure.text.Component;
 import re.imc.geysermodelengine.packet.*;
 
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ThreadLocalRandom;
-
 public class PacketEntity implements Entity {
+
+    private final int id;
+    private final UUID uuid;
+    private final EntityType type;
+    private final Set<Player> viewers;
+    private Location location;
+    private boolean removed = false;
+
     public PacketEntity(EntityType type, Set<Player> viewers, Location location) {
         this.id = ThreadLocalRandom.current().nextInt(20000, 100000000);
         this.uuid = UUID.randomUUID();
@@ -36,12 +49,6 @@ public class PacketEntity implements Entity {
         this.location = location;
     }
 
-    private int id;
-    private UUID uuid;
-    private EntityType type;
-    private Set<Player> viewers;
-    private Location location;
-    private boolean removed = false;
     @Override
     public @NotNull Location getLocation() {
         return location;
@@ -53,7 +60,6 @@ public class PacketEntity implements Entity {
         sendLocationPacket(viewers);
         return true;
     }
-
 
 
     @Override
@@ -78,6 +84,7 @@ public class PacketEntity implements Entity {
         players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet.encode()));
         players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, metadataPacket.encode()));
     }
+
     public void sendLocationPacket(Collection<Player> players) {
         EntityTeleportPacket packet = new EntityTeleportPacket(id, location);
         players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet.encode()));
@@ -157,7 +164,6 @@ public class PacketEntity implements Entity {
     }
 
 
-
     @Override
     public boolean teleport(@NotNull Location location, PlayerTeleportEvent.@NotNull TeleportCause teleportCause) {
         return false;
@@ -182,7 +188,6 @@ public class PacketEntity implements Entity {
     public @NotNull List<Entity> getNearbyEntities(double v, double v1, double v2) {
         return null;
     }
-
 
 
     @Override

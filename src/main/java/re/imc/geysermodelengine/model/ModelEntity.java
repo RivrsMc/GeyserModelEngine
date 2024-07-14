@@ -45,7 +45,7 @@ public class ModelEntity {
         int id = entity.getBase().getEntityId();
         Map<ActiveModel, ModelEntity> map = ENTITIES.computeIfAbsent(id, k -> new HashMap<>());
         for (Map.Entry<ActiveModel, ModelEntity> entry : map.entrySet()) {
-            if (entry.getKey() !=  model && entry.getKey().getBlueprint().getName().equals(model.getBlueprint().getName())) {
+            if (entry.getKey() != model && entry.getKey().getBlueprint().getName().equals(model.getBlueprint().getName())) {
                 return null;
             }
         }

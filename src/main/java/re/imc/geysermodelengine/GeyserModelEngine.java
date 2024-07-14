@@ -9,6 +9,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.comphenix.protocol.ProtocolLibrary;
@@ -20,6 +22,7 @@ import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
 import com.ticxo.modelengine.api.model.bone.type.Mount;
 
+import io.rivrs.bedrockcore.configuration.ConfigurationManager;
 import lombok.Getter;
 import re.imc.geysermodelengine.configuration.Configuration;
 import re.imc.geysermodelengine.listener.ModelListener;
@@ -35,8 +38,6 @@ public final class GeyserModelEngine extends JavaPlugin {
     private Configuration configuration;
     private Cache<Player, Boolean> joinedPlayer;
     private final Map<Player, Pair<ActiveModel, Mount>> drivers = new ConcurrentHashMap<>();
-
-    @Getter
     private boolean initialized = false;
 
     @Override
@@ -50,7 +51,7 @@ public final class GeyserModelEngine extends JavaPlugin {
             this.joinedPlayer = CacheBuilder.newBuilder()
                     .expireAfterWrite(this.configuration.joinSendDelay() * 50L, TimeUnit.MILLISECONDS).build();
         } else {
-
+            this.joinedPlayer = CacheBuilder.newBuilder().build();
         }
 
         // Instance
@@ -85,6 +86,13 @@ public final class GeyserModelEngine extends JavaPlugin {
         for (Map<ActiveModel, ModelEntity> entities : ModelEntity.ENTITIES.values()) {
             entities.forEach((model, modelEntity) -> modelEntity.getEntity().remove());
         }
+
+        ModelEntity.ENTITIES.clear();
+        ModelEntity.MODEL_ENTITIES.clear();
+
+        ProtocolLibrary.getProtocolManager().removePacketListeners(this);
+        Bukkit.getScheduler().cancelTasks(this);
+        HandlerList.unregisterAll(this);
     }
 
 }
