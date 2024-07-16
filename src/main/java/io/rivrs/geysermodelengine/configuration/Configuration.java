@@ -1,4 +1,4 @@
-package re.imc.geysermodelengine.configuration;
+package io.rivrs.geysermodelengine.configuration;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +39,6 @@ public class Configuration {
             return EntityType.BAT;
         }
     }
-
 
     public void load() {
         if (!Files.exists(path))

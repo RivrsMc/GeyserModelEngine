@@ -1,12 +1,12 @@
 name: GeyserModelEngine
 version: '${project.version}'
-main: re.imc.geysermodelengine.GeyserModelEngine
+main: io.rivrs.geysermodelengine.GeyserModelEngine
 authors:
-  - zimzaza4
-  - willem.dev
+  - Rivrs
   - Roch Blondiaux
 api-version: '1.19'
 depend:
   - ModelEngine
   - floodgate
   - BedrockCore
+  - packetevents

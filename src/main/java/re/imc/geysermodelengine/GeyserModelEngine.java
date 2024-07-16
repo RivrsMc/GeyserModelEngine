@@ -10,7 +10,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.comphenix.protocol.ProtocolLibrary;
@@ -22,9 +21,8 @@ import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
 import com.ticxo.modelengine.api.model.bone.type.Mount;
 
-import io.rivrs.bedrockcore.configuration.ConfigurationManager;
 import lombok.Getter;
-import re.imc.geysermodelengine.configuration.Configuration;
+import io.rivrs.geysermodelengine.configuration.Configuration;
 import re.imc.geysermodelengine.listener.ModelListener;
 import re.imc.geysermodelengine.listener.MountPacketListener;
 import re.imc.geysermodelengine.model.ModelEntity;
