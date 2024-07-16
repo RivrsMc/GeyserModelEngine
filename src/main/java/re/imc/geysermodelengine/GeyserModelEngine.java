@@ -1,5 +1,6 @@
 package re.imc.geysermodelengine;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,8 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.wrappers.Pair;
+import com.github.retrooper.packetevents.PacketEvents;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.ticxo.modelengine.api.ModelEngineAPI;
@@ -21,11 +21,13 @@ import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
 import com.ticxo.modelengine.api.model.bone.type.Mount;
 
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import lombok.Getter;
 import re.imc.geysermodelengine.configuration.Configuration;
 import re.imc.geysermodelengine.listener.ModelListener;
-import re.imc.geysermodelengine.listener.MountPacketListener;
+import re.imc.geysermodelengine.listener.packets.MegEntityListener;
 import re.imc.geysermodelengine.model.ModelEntity;
+import re.imc.geysermodelengine.utils.Pair;
 
 @Getter
 public final class GeyserModelEngine extends JavaPlugin {
@@ -37,6 +39,21 @@ public final class GeyserModelEngine extends JavaPlugin {
     private Cache<Player, Boolean> joinedPlayer;
     private final Map<Player, Pair<ActiveModel, Mount>> drivers = new ConcurrentHashMap<>();
     private boolean initialized = false;
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+
+        // Packet events
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+        PacketEvents.getAPI()
+                .getSettings()
+                .reEncodeByDefault(false)
+                .checkForUpdates(false)
+                .bStats(false);
+        PacketEvents.getAPI().load();
+    }
+
 
     @Override
     public void onEnable() {
@@ -56,14 +73,18 @@ public final class GeyserModelEngine extends JavaPlugin {
         instance = this;
 
         // Packets listener
-        ProtocolLibrary.getProtocolManager().addPacketListener(new MountPacketListener(this));
+        Arrays.asList(
+                new MegEntityListener(this),
+                new MegEntityListener(this)
+        ).forEach(listener -> PacketEvents.getAPI().getEventManager().registerListener(listener));
+        PacketEvents.getAPI().init();
 
         // Events
         Bukkit.getPluginManager().registerEvents(new ModelListener(this), this);
 
         // Task
         Bukkit.getScheduler()
-                .runTaskLater(GeyserModelEngine.getInstance(), () -> {
+                .runTaskLater(this, () -> {
                     for (World world : Bukkit.getWorlds()) {
                         for (Entity entity : world.getEntities()) {
                             if (!ModelEntity.ENTITIES.containsKey(entity.getEntityId())) {
@@ -88,9 +109,11 @@ public final class GeyserModelEngine extends JavaPlugin {
         ModelEntity.ENTITIES.clear();
         ModelEntity.MODEL_ENTITIES.clear();
 
-        ProtocolLibrary.getProtocolManager().removePacketListeners(this);
         Bukkit.getScheduler().cancelTasks(this);
         HandlerList.unregisterAll(this);
+
+
+        PacketEvents.getAPI().terminate();
     }
 
 }

@@ -11,7 +11,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import com.comphenix.protocol.wrappers.Pair;
 import com.ticxo.modelengine.api.events.*;
 import com.ticxo.modelengine.api.model.ActiveModel;
 
@@ -19,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import re.imc.geysermodelengine.GeyserModelEngine;
 import re.imc.geysermodelengine.model.EntityTask;
 import re.imc.geysermodelengine.model.ModelEntity;
+import re.imc.geysermodelengine.utils.Pair;
 
 @RequiredArgsConstructor
 public class ModelListener implements Listener {

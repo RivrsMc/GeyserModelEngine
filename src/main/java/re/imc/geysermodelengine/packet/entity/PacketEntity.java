@@ -25,12 +25,16 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.comphenix.protocol.ProtocolLibrary;
+import com.github.retrooper.packetevents.util.Vector3d;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityTeleport;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerHurtAnimation;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
 
 import io.papermc.paper.entity.TeleportFlag;
 import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
 import net.kyori.adventure.text.Component;
-import re.imc.geysermodelengine.packet.*;
+import re.imc.geysermodelengine.utils.PacketUtils;
 
 public class PacketEntity implements Entity {
 
@@ -79,26 +83,45 @@ public class PacketEntity implements Entity {
     }
 
     public void sendSpawnPacket(Collection<Player> players) {
-        EntitySpawnPacket packet = new EntitySpawnPacket(id, uuid, type, location);
-        EntityMetadataPacket metadataPacket = new EntityMetadataPacket(id);
-        players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet.encode()));
-        players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, metadataPacket.encode()));
+        WrapperPlayServerSpawnEntity packet = new WrapperPlayServerSpawnEntity(
+                id,
+                uuid,
+                PacketUtils.wrap(type),
+                PacketUtils.wrap(location),
+                0,
+                0,
+                Vector3d.zero()
+        );
+        PacketUtils.broadcast(players, packet);
+
+
+//        WrapperPlayServerEntityMetadata metadataPacket = new WrapperPlayServerEntityMetadata();
+//        metadataPacket.setEntityID(id);
+//        WrappedDataWatcher watcher = new WrappedDataWatcher();
+//        metadataPacket.setMetadata(watcher.getWatchableObjects());
+//        players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, metadataPacket.getHandle()));
     }
 
     public void sendLocationPacket(Collection<Player> players) {
-        EntityTeleportPacket packet = new EntityTeleportPacket(id, location);
-        players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet.encode()));
-
+        WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport(
+                id,
+                PacketUtils.wrap(location),
+                true
+        );
+        PacketUtils.broadcast(players, packet);
     }
 
     public void sendHurtPacket(Collection<Player> players) {
-        EntityHurtAnimationPacket packet = new EntityHurtAnimationPacket(id);
-        players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet.encode()));
+        WrapperPlayServerHurtAnimation packet = new WrapperPlayServerHurtAnimation(
+                id,
+                1f
+        );
+        PacketUtils.broadcast(players, packet);
     }
 
     public void sendEntityDestroyPacket(Collection<Player> players) {
-        EntityDestroyPacket packet = new EntityDestroyPacket(id);
-        players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet.encode()));
+        WrapperPlayServerDestroyEntities packet = new WrapperPlayServerDestroyEntities(id);
+        PacketUtils.broadcast(players, packet);
     }
 
     @Override
