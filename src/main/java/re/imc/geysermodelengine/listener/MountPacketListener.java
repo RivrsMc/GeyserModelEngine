@@ -18,8 +18,12 @@ import com.ticxo.modelengine.api.model.bone.type.Mount;
 import re.imc.geysermodelengine.GeyserModelEngine;
 
 public class MountPacketListener extends PacketAdapter {
-    public MountPacketListener() {
-        super(GeyserModelEngine.getInstance(), ListenerPriority.HIGHEST, Set.of(PacketType.Play.Client.STEER_VEHICLE, PacketType.Play.Client.ENTITY_ACTION), ListenerOptions.SYNC);
+
+    private final GeyserModelEngine plugin;
+
+    public MountPacketListener(GeyserModelEngine plugin) {
+        super(plugin, ListenerPriority.HIGHEST, Set.of(PacketType.Play.Client.STEER_VEHICLE, PacketType.Play.Client.ENTITY_ACTION), ListenerOptions.SYNC);
+        this.plugin = plugin;
     }
 
     @Override
@@ -29,7 +33,7 @@ public class MountPacketListener extends PacketAdapter {
         }
 
         if (event.getPacket().getType() == PacketType.Play.Client.STEER_VEHICLE) {
-            Pair<ActiveModel, Mount> seat = GeyserModelEngine.getInstance().getDrivers().get(event.getPlayer());
+            Pair<ActiveModel, Mount> seat = this.plugin.getDrivers().get(event.getPlayer());
             if (seat != null) {
                 float pitch = event.getPlayer().getPitch();
                 if (seat.getFirst().getModeledEntity().getBase().isFlying()) {
@@ -53,7 +57,7 @@ public class MountPacketListener extends PacketAdapter {
                 }
             }
         } else {
-            Pair<ActiveModel, Mount> seat = GeyserModelEngine.getInstance().getDrivers().get(event.getPlayer());
+            Pair<ActiveModel, Mount> seat = this.plugin.getDrivers().get(event.getPlayer());
             if (seat != null) {
                 if (event.getPacket().getPlayerActions().read(0) == EnumWrappers.PlayerAction.START_SNEAKING) {
                     event.getPlayer().sendActionBar("action.hint.exit.vehicle");

@@ -33,11 +33,6 @@ public class ModelListener implements Listener {
         Bukkit.getScheduler().runTask(this.plugin, () -> ModelEntity.create(event.getTarget(), event.getModel()));
     }
 
-
-    @EventHandler
-    public void onRemoveModel(RemoveModelEvent event) {
-    }
-
     @EventHandler(priority = EventPriority.MONITOR)
     public void onModelMount(ModelMountEvent event) {
         Map<ActiveModel, ModelEntity> map = ModelEntity.ENTITIES.get(event.getVehicle().getModeledEntity().getBase().getEntityId());
@@ -75,7 +70,6 @@ public class ModelListener implements Listener {
         }
     }
 
-
     @EventHandler
     public void onModelEntityHurt(EntityDamageEvent event) {
         Map<ActiveModel, ModelEntity> model = ModelEntity.ENTITIES.get(event.getEntity().getEntityId());
@@ -89,33 +83,13 @@ public class ModelListener implements Listener {
         }
     }
 
-    /*
-
-    @EventHandler
-    public void onModelAttack(EntityDamageByEntityEvent event) {
-        ModelEntity model = ModelEntity.ENTITIES.get(event.getDamager().getEntityId());
-        if (model != null) {
-            EntityTask task = model.getTask();
-
-            task.playAnimation("attack", 55);
-        }
-    }
-
-     */
-
-
-    @EventHandler
-    public void onAnimationEnd(AnimationEndEvent event) {
-
-    }
-
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        GeyserModelEngine.getInstance().getJoinedPlayer().put(event.getPlayer(), true);
+        this.plugin.getJoinedPlayer().put(event.getPlayer(), true);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        GeyserModelEngine.getInstance().getDrivers().remove(event.getPlayer());
+        this.plugin.getDrivers().remove(event.getPlayer());
     }
 }

@@ -40,7 +40,6 @@ public class Configuration {
         }
     }
 
-
     public void load() {
         if (!Files.exists(path))
             loadDefault();
