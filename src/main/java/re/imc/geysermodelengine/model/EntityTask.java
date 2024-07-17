@@ -197,7 +197,6 @@ public class EntityTask {
             return;
         this.entityDatas.put(player.getUniqueId(), model.getActiveModel().getBlueprint().getName().toLowerCase());
 
-        System.out.println("SENDING ENTITY DATA TO " + player.getName());
         PlayerUtils.setCustomEntity(player, model.getEntity().getEntityId(), "modelengine:" + model.getActiveModel().getBlueprint().getName().toLowerCase());
         Bukkit.getScheduler().runTaskLaterAsynchronously(GeyserModelEngine.getInstance(), () -> {
             // EntityUtils.sendCustomSkin(player, model.getEntity(), model.getActiveModel().getBlueprint().getName());
@@ -270,7 +269,6 @@ public class EntityTask {
         if (updates.isEmpty() || (this.lastProperties.containsKey(player.getUniqueId()) && this.lastProperties.get(player.getUniqueId()).equals(updates))) return;
         this.lastProperties.put(player.getUniqueId(), updates);
 
-        System.out.println("SENDING ENTITY PROPERTIES TO " + player.getName());
         PlayerUtils.sendBoolProperties(player, model.getEntity(), updates);
     }
 
