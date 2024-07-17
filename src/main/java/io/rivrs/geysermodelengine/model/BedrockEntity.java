@@ -62,7 +62,6 @@ public class BedrockEntity extends PacketEntity {
     public void addViewer(Player player) {
         this.viewers.add(player);
 
-        this.spawnBedrockEntity(player);
         Bukkit.getScheduler().runTaskLaterAsynchronously(JavaPlugin.getProvidingPlugin(GeyserModelEngine.class), () -> {
             this.spawnBedrockEntity(player);
             this.spawn(player);

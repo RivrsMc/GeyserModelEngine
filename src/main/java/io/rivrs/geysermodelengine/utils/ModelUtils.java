@@ -19,4 +19,7 @@ public class ModelUtils {
         return name;
     }
 
+    public static boolean isLookingAt(Player player, Location location) {
+        return player.getEyeLocation().getDirection().dot(location.toVector().subtract(player.getEyeLocation().toVector()).normalize()) > 0.5;
+    }
 }
