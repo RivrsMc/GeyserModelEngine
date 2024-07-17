@@ -13,6 +13,7 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import io.rivrs.geysermodelengine.GeyserModelEngine;
 import io.rivrs.geysermodelengine.configuration.Configuration;
 import io.rivrs.geysermodelengine.model.BedrockEntity;
+import io.rivrs.geysermodelengine.utils.ModelUtils;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -37,15 +38,15 @@ public class EntityViewersTask implements Runnable {
                     .filter(player -> FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId()))
                     .filter(player -> player.getLocation().distanceSquared(location) <= NumberConversions.square(configuration.viewDistance()))
                     .filter(player -> this.plugin.getEntities().getViewedEntitiesCount(player) < configuration.maximumModels())
+                    .filter(player -> ModelUtils.isLookingAt(player, location))
                     .forEach(player -> {
                         if (plugin.getPlayers().isInGracePeriod(player.getUniqueId())) {
-                            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+                            this.gracePeriodPlayers.add(player.getUniqueId());
+                            Bukkit.getScheduler().runTaskLater(plugin, () -> {
                                 if (player.isOnline())
                                     entity.addViewer(player);
                                 this.gracePeriodPlayers.remove(player.getUniqueId());
                             }, plugin.getPlayers().getRemainingGracePeriod(player.getUniqueId()) / 1000 * 20L);
-                            System.out.println("Player " + player.getName() + " is in grace period for " + plugin.getPlayers().getRemainingGracePeriod(player.getUniqueId()) + "ms.");
-                            this.gracePeriodPlayers.add(player.getUniqueId());
                             return;
                         }
 
@@ -61,7 +62,8 @@ public class EntityViewersTask implements Runnable {
                 }
 
                 // Players outside the view distance are removed
-                if (viewer.getLocation().distanceSquared(location) > NumberConversions.square(configuration.viewDistance())) {
+                if (viewer.getLocation().distanceSquared(location) > NumberConversions.square(configuration.viewDistance())
+                    || !ModelUtils.isLookingAt(viewer, location)) {
                     entity.removeViewer(viewer);
                 }
             }

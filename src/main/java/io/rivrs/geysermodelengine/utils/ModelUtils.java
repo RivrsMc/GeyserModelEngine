@@ -1,5 +1,8 @@
 package io.rivrs.geysermodelengine.utils;
 
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
 import com.ticxo.modelengine.api.model.bone.ModelBone;
 
 import lombok.experimental.UtilityClass;
@@ -16,4 +19,7 @@ public class ModelUtils {
         return name;
     }
 
+    public static boolean isLookingAt(Player player, Location location) {
+        return player.getEyeLocation().getDirection().dot(location.toVector().subtract(player.getEyeLocation().toVector()).normalize()) > 0.5;
+    }
 }

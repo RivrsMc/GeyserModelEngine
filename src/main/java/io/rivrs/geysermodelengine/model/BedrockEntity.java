@@ -2,7 +2,6 @@ package io.rivrs.geysermodelengine.model;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bukkit.Bukkit;
@@ -19,6 +18,7 @@ import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
 import com.ticxo.modelengine.api.model.bone.ModelBone;
 
+import io.github.retrooper.packetevents.util.SpigotReflectionUtil;
 import io.rivrs.geysermodelengine.GeyserModelEngine;
 import io.rivrs.geysermodelengine.utils.ModelUtils;
 import lombok.Getter;
@@ -48,7 +48,7 @@ public class BedrockEntity extends PacketEntity {
     private String currentAnimationProperty = "";
 
     public BedrockEntity(EntityType type, ModeledEntity modeledEntity, ActiveModel activeModel) {
-        super(ThreadLocalRandom.current().nextInt(300000000, 400000000), UUID.randomUUID(), type, modeledEntity.getBase().getLocation());
+        super(SpigotReflectionUtil.generateEntityId(), UUID.randomUUID(), type, modeledEntity.getBase().getLocation());
         this.modeledEntity = modeledEntity;
         this.activeModel = activeModel;
         this.modelKey = Key.key("modelengine", this.activeModel.getBlueprint().getName().toLowerCase());
@@ -62,13 +62,16 @@ public class BedrockEntity extends PacketEntity {
     public void addViewer(Player player) {
         this.viewers.add(player);
 
-        this.spawnBedrockEntity(player);
-        this.spawn(player);
-        this.updateEntityProperties(player, true);
         Bukkit.getScheduler().runTaskLaterAsynchronously(JavaPlugin.getProvidingPlugin(GeyserModelEngine.class), () -> {
             this.spawnBedrockEntity(player);
-            this.updateEntityProperties(player, true);
-        }, 10);
+            this.spawn(player);
+            Bukkit.getScheduler().runTaskLaterAsynchronously(JavaPlugin.getProvidingPlugin(GeyserModelEngine.class), () -> {
+                if (looping)
+                    playBedrockAnimation(player, lastAnimationName, true, 0f);
+                this.updateEntityProperties(player, true);
+                teleport(player, this.location);
+            }, 8);
+        }, 5);
     }
 
     public void removeViewer(Player player) {
@@ -142,6 +145,12 @@ public class BedrockEntity extends PacketEntity {
     }
 
     private void playBedrockAnimation(String name, boolean loop, float blendTime) {
+        for (Player viewer : viewers) {
+            playBedrockAnimation(viewer, name, loop, blendTime);
+        }
+    }
+
+    private void playBedrockAnimation(Player player, String name, boolean loop, float blendTime) {
         Animation.AnimationBuilder builder = Animation.builder()
                 .animation(name)
                 .blendOutTime(blendTime);
@@ -150,9 +159,7 @@ public class BedrockEntity extends PacketEntity {
             builder.nextState(name);
 
         Animation animation = builder.build();
-        for (Player viewer : viewers) {
-            PlayerUtils.playEntityAnimation(viewer, animation, Collections.singletonList(this.id));
-        }
+        PlayerUtils.playEntityAnimation(player, animation, Collections.singletonList(this.id));
     }
 
     // Animations
