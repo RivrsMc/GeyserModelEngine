@@ -31,6 +31,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEn
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerHurtAnimation;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
 
+import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import io.papermc.paper.entity.TeleportFlag;
 import io.papermc.paper.threadedregions.scheduler.EntityScheduler;
 import net.kyori.adventure.text.Component;
@@ -86,26 +87,19 @@ public class PacketEntity implements Entity {
         WrapperPlayServerSpawnEntity packet = new WrapperPlayServerSpawnEntity(
                 id,
                 uuid,
-                PacketUtils.wrap(type),
-                PacketUtils.wrap(location),
+                SpigotConversionUtil.fromBukkitEntityType(type),
+                SpigotConversionUtil.fromBukkitLocation(location),
                 0,
                 0,
                 Vector3d.zero()
         );
         PacketUtils.broadcast(players, packet);
-
-
-//        WrapperPlayServerEntityMetadata metadataPacket = new WrapperPlayServerEntityMetadata();
-//        metadataPacket.setEntityID(id);
-//        WrappedDataWatcher watcher = new WrappedDataWatcher();
-//        metadataPacket.setMetadata(watcher.getWatchableObjects());
-//        players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, metadataPacket.getHandle()));
     }
 
     public void sendLocationPacket(Collection<Player> players) {
         WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport(
                 id,
-                PacketUtils.wrap(location),
+                SpigotConversionUtil.fromBukkitLocation(location),
                 true
         );
         PacketUtils.broadcast(players, packet);

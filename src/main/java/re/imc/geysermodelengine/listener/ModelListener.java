@@ -58,9 +58,8 @@ public class ModelListener implements Listener {
             return;
         }
         Map<ActiveModel, ModelEntity> map = ModelEntity.ENTITIES.get(event.getModel().getModeledEntity().getBase().getEntityId());
-        if (map == null) {
+        if (map == null)
             return;
-        }
         ModelEntity model = map.get(event.getModel());
 
         if (model != null) {

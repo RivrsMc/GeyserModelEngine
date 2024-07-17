@@ -40,18 +40,16 @@ public class ModelEntity {
         entity.teleport(location);
     }
 
-    public static ModelEntity create(ModeledEntity entity, ActiveModel model) {
+    public static void create(ModeledEntity entity, ActiveModel model) {
         ModelEntity modelEntity = new ModelEntity(entity, model);
         int id = entity.getBase().getEntityId();
         Map<ActiveModel, ModelEntity> map = ENTITIES.computeIfAbsent(id, k -> new HashMap<>());
         for (Map.Entry<ActiveModel, ModelEntity> entry : map.entrySet()) {
             if (entry.getKey() != model && entry.getKey().getBlueprint().getName().equals(model.getBlueprint().getName())) {
-                return null;
+                return;
             }
         }
         map.put(model, modelEntity);
-
-        return modelEntity;
     }
 
     public PacketEntity spawnEntity() {
