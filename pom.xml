@@ -85,13 +85,6 @@
             <version>2.4.0</version>
             <scope>provided</scope>
         </dependency>
-        <!-- bedrock-core -->
-        <dependency>
-            <groupId>io.rivrs</groupId>
-            <artifactId>bedrock-core</artifactId>
-            <version>1.2.2</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <!-- build -->

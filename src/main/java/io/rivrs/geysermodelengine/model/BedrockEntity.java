@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityTeleport;
@@ -26,6 +25,7 @@ import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
 import com.ticxo.modelengine.api.model.bone.ModelBone;
 
+import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import io.rivrs.geysermodelengine.GeyserModelEngine;
 import io.rivrs.geysermodelengine.utils.ModelUtils;
 import io.rivrs.geysermodelengine.utils.PacketUtils;
@@ -80,11 +80,16 @@ public class BedrockEntity {
         if (!this.removed)
             return;
 
-        PacketUtils.sendPacket(this.viewers, getSpawnPacket());
+        this.viewers.stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .forEach(player -> this.sendEntityData(JavaPlugin.getProvidingPlugin(GeyserModelEngine.class), player, 0));
+
         this.removed = false;
     }
 
     public void spawn(JavaPlugin plugin, Player player, int delay) {
+        System.out.println("Spawning entity " + this.activeModel.getBlueprint().getName().toLowerCase() + " for " + player.getName());
         this.sendEntityData(plugin, player, delay);
     }
 
@@ -93,6 +98,11 @@ public class BedrockEntity {
 
         if (!this.removed)
             PacketUtils.sendPacket(this.viewers, this.getTeleportPacket(this.location));
+    }
+
+    public void teleport(Player player) {
+        if (!this.removed)
+            PacketUtils.sendPacket(player.getUniqueId(), this.getTeleportPacket(this.location));
     }
 
     public void remove() {
@@ -181,6 +191,13 @@ public class BedrockEntity {
     }
 
     // Bedrock methods
+    public void updateEntityProperties(boolean ignore) {
+        this.viewers.stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .forEach(player -> updateEntityProperties(player, ignore));
+    }
+
     public void updateEntityProperties(Player player, boolean ignore) {
         Map<String, Boolean> updates = new HashMap<>();
 
@@ -201,6 +218,8 @@ public class BedrockEntity {
         }
         if (updates.isEmpty()) return;
 
+        System.out.println("Updating entity properties for " + player.getName() + " : " + this.activeModel.getBlueprint().getName().toLowerCase());
+        updates.forEach((s, aBoolean) -> System.out.println(" - " + s + " : " + aBoolean));
         PlayerUtils.sendBoolProperties(player, this.asEntity(), updates);
     }
 
@@ -234,7 +253,10 @@ public class BedrockEntity {
     }
 
     private void sendHitBox(Player player) {
-        PlayerUtils.sendCustomHitBox(player, this.asEntity(), 0.01f, 0.01f);
+        Vector3f vector3f = this.activeModel.getHitboxScale();
+        System.out.println("Sending hitbox for " + player.getName() + " : " + this.activeModel.getBlueprint().getName().toLowerCase() + " : " + vector3f.y + " : " + vector3f.x);
+
+        PlayerUtils.sendCustomHitBox(player, this.asEntity(), vector3f.y, vector3f.x);
     }
 
     private void sendScale(Player player, boolean ignore) {
@@ -244,22 +266,29 @@ public class BedrockEntity {
         if (average == this.lastScale)
             return;
 
+        System.out.println("Sending scale for " + player.getName() + " : " + this.activeModel.getBlueprint().getName().toLowerCase() + " : " + average);
         PlayerUtils.sendCustomScale(player, this.asEntity(), average);
         if (!ignore)
             this.lastScale = average;
     }
 
     private void sendEntityData(JavaPlugin plugin, Player player, int delay) {
-        PlayerUtils.setCustomEntity(player, this.id, "modelengine:%s".formatted(this.activeModel.getBlueprint().getName().toLowerCase()));
+        PlayerUtils.setCustomEntity(player, this.asEntity(), "modelengine:%s".formatted(this.activeModel.getBlueprint().getName().toLowerCase()));
+        System.out.println("Sending entity data for " + player.getName() + " : " + this.activeModel.getBlueprint().getName().toLowerCase());
+
         Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
             PacketUtils.sendPacket(player.getUniqueId(), getSpawnPacket());
+            System.out.println("Sending spawn packet for " + player.getName() + " : " + this.activeModel.getBlueprint().getName().toLowerCase());
 
             Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-                if (looping)
+                if (looping) {
                     this.playBedrockAnimation(player, this.lastAnimation, true, 0);
+                    System.out.println("Playing animation for " + player.getName() + " : " + this.activeModel.getBlueprint().getName().toLowerCase());
+                }
 
                 this.sendHitBox(player);
                 this.sendScale(player, true);
+                System.out.println("Updating entity properties for " + player.getName() + " : " + this.activeModel.getBlueprint().getName().toLowerCase());
                 this.updateEntityProperties(player, true);
             }, 10);
         }, delay);
@@ -270,8 +299,8 @@ public class BedrockEntity {
         return new WrapperPlayServerSpawnEntity(
                 this.id,
                 this.uniqueId,
-                EntityTypes.getByName(this.entityType.name()),
-                PacketUtils.wrap(this.location),
+                SpigotConversionUtil.fromBukkitEntityType(this.entityType),
+                SpigotConversionUtil.fromBukkitLocation(this.location),
                 0,
                 0,
                 Vector3d.zero()
@@ -281,7 +310,7 @@ public class BedrockEntity {
     private WrapperPlayServerEntityTeleport getTeleportPacket(Location destination) {
         return new WrapperPlayServerEntityTeleport(
                 this.id,
-                PacketUtils.wrap(destination),
+                SpigotConversionUtil.fromBukkitLocation(destination),
                 true
         );
     }

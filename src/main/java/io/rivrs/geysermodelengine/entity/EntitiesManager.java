@@ -13,6 +13,7 @@ import com.ticxo.modelengine.api.model.ModeledEntity;
 
 import io.rivrs.geysermodelengine.GeyserModelEngine;
 import io.rivrs.geysermodelengine.model.BedrockEntity;
+import io.rivrs.geysermodelengine.task.EntityUpdateTask;
 import io.rivrs.geysermodelengine.task.EntityViewersTask;
 
 public class EntitiesManager {
@@ -23,11 +24,12 @@ public class EntitiesManager {
     public EntitiesManager(GeyserModelEngine plugin) {
         this.plugin = plugin;
 
-        this.startViewersTask();
+        this.startTasks();
     }
 
-    private void startViewersTask() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new EntityViewersTask(this.plugin), 20, 5);
+    private void startTasks() {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new EntityViewersTask(this.plugin), 100, 5);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new EntityUpdateTask(this.plugin), 100, 5);
     }
 
     public void add(ModeledEntity target, ActiveModel model) {

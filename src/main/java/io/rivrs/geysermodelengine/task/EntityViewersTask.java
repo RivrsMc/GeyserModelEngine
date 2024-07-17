@@ -26,10 +26,12 @@ public class EntityViewersTask implements Runnable {
             final Location location = entity.getLocation();
 
             // Add missing viewers
-            location.getNearbyPlayers(configuration.viewDistance())
+            Bukkit.getOnlinePlayers()
                     .stream()
+                    .filter(player -> location.getWorld().equals(player.getWorld()))
                     .filter(player -> !entity.hasViewer(player.getUniqueId()))
                     .filter(player -> FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId()))
+                    .filter(player -> player.getLocation().distanceSquared(location) <= NumberConversions.square(configuration.viewDistance()))
                     .filter(player -> this.plugin.getEntities().getViewedEntitiesCount(player.getUniqueId()) < configuration.maximumModels())
                     .forEach(entity::addViewer);
 
@@ -44,8 +46,9 @@ public class EntityViewersTask implements Runnable {
                 }
 
                 // Players outside the view distance are removed
-                if (player.getLocation().distanceSquared(location) > NumberConversions.square(configuration.viewDistance()))
+                if (player.getLocation().distanceSquared(location) > NumberConversions.square(configuration.viewDistance())) {
                     entity.removeViewer(viewer);
+                }
             }
         }
     }

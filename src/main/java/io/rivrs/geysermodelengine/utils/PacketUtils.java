@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.protocol.world.Location;
 
 import lombok.experimental.UtilityClass;
 
@@ -28,7 +27,4 @@ public class PacketUtils {
         }
     }
 
-    public static Location wrap(org.bukkit.Location location) {
-        return new Location(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
-    }
 }

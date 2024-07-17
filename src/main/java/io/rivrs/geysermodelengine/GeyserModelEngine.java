@@ -9,6 +9,7 @@ import com.github.retrooper.packetevents.PacketEvents;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import io.rivrs.geysermodelengine.configuration.Configuration;
 import io.rivrs.geysermodelengine.entity.EntitiesManager;
+import io.rivrs.geysermodelengine.listener.ModelEngineListener;
 import lombok.Getter;
 
 @Getter
@@ -46,6 +47,12 @@ public class GeyserModelEngine extends JavaPlugin {
         // Packet events
         //PacketEvents.getAPI().getEventManager().registerListener(new PacketEventsPacketListener());
         PacketEvents.getAPI().init();
+
+        // Events
+        Bukkit.getPluginManager().registerEvents(new ModelEngineListener(this), this);
+
+        // Commands
+        this.getCommand("test").setExecutor(new TestCommand(this));
 
         this.started = true;
     }

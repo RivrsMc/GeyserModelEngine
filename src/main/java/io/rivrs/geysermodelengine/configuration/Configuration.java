@@ -48,6 +48,13 @@ public class Configuration {
     }
 
     public void loadDefault() {
+        if (!Files.isDirectory(path.getParent()))
+            try {
+                Files.createDirectories(path.getParent());
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to create configuration directory", e);
+            }
+
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("config.yml")) {
             if (inputStream == null)
                 throw new RuntimeException("Default configuration not found");
