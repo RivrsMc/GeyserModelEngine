@@ -13,7 +13,6 @@ import org.geysermc.floodgate.api.FloodgateApi;
 import io.rivrs.geysermodelengine.GeyserModelEngine;
 import io.rivrs.geysermodelengine.configuration.Configuration;
 import io.rivrs.geysermodelengine.model.BedrockEntity;
-import io.rivrs.geysermodelengine.utils.ModelUtils;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -38,7 +37,6 @@ public class EntityViewersTask implements Runnable {
                     .filter(player -> FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId()))
                     .filter(player -> player.getLocation().distanceSquared(location) <= NumberConversions.square(configuration.viewDistance()))
                     .filter(player -> this.plugin.getEntities().getViewedEntitiesCount(player) < configuration.maximumModels())
-                    .filter(player -> ModelUtils.isLookingAt(player, location))
                     .forEach(player -> {
                         if (plugin.getPlayers().isInGracePeriod(player.getUniqueId())) {
                             this.gracePeriodPlayers.add(player.getUniqueId());
@@ -62,8 +60,7 @@ public class EntityViewersTask implements Runnable {
                 }
 
                 // Players outside the view distance are removed
-                if (viewer.getLocation().distanceSquared(location) > NumberConversions.square(configuration.viewDistance())
-                    || !ModelUtils.isLookingAt(viewer, location)) {
+                if (viewer.getLocation().distanceSquared(location) > NumberConversions.square(configuration.viewDistance())) {
                     entity.removeViewer(viewer);
                 }
             }
