@@ -25,7 +25,6 @@ public class EntityUpdateTask implements Runnable {
             if (activeModel.isDestroyed()
                 || activeModel.isRemoved()
                 || !modeledEntity.getBase().isAlive()) {
-                System.out.println("Entity is dead");
                 this.handleRemoval(entity);
                 return;
             }
@@ -42,9 +41,9 @@ public class EntityUpdateTask implements Runnable {
             else if (base.isJumping() && entity.hasAnimation("jump"))
                 entity.playAnimation("jump", 30);
             else if (base.isWalking() && entity.hasAnimation("walk"))
-                entity.setAnimationProperty("modelengine:anim_walk");
+                entity.animationProperty("modelengine:anim_walk");
             else if (entity.hasAnimation("idle"))
-                entity.setAnimationProperty("modelengine:anim_idle");
+                entity.animationProperty("modelengine:anim_idle");
 
             if (entity.getAnimationCooldown().get() > 0 || entity.getViewers().isEmpty())
                 return;
@@ -56,9 +55,9 @@ public class EntityUpdateTask implements Runnable {
 
     private void handleRemoval(BedrockEntity entity) {
         if (!entity.getActiveModel().isRemoved() && entity.hasAnimation("death")) {
-            Bukkit.getScheduler().runTaskLater(this.plugin, entity::remove, Math.min(Math.max(entity.playAnimation("death", 999, 5f, true) - 3, 0), 200));
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> entity.destroy(), Math.min(Math.max(entity.playAnimation("death", 999, 5, true) - 3, 0), 200));
         } else {
-            Bukkit.getScheduler().runTask(this.plugin, entity::remove);
+            Bukkit.getScheduler().runTask(this.plugin, () -> entity.destroy());
         }
 
         this.plugin.getEntities().removeEntity(entity.getUniqueId());

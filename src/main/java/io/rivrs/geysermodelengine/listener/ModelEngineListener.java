@@ -1,6 +1,5 @@
 package io.rivrs.geysermodelengine.listener;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -20,6 +19,6 @@ public class ModelEngineListener implements Listener {
         if (e.isCancelled() || !this.plugin.isStarted())
             return;
 
-        Bukkit.getScheduler().runTask(plugin, () -> plugin.getEntities().add(e.getTarget(), e.getModel()));
+        plugin.getEntities().add(e.getTarget(), e.getModel());
     }
 }

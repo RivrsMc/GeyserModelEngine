@@ -9,5 +9,3 @@ depend:
   - ModelEngine
   - floodgate
   - packetevents
-commands:
-  test:

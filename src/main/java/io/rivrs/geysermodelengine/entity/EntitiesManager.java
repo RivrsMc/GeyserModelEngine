@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
@@ -33,17 +34,15 @@ public class EntitiesManager {
     }
 
     public void add(ModeledEntity target, ActiveModel model) {
-        BedrockEntity entity = new BedrockEntity(
+        this.entities.add(new BedrockEntity(
                 plugin.getConfiguration().modelEntityType(),
-                target.getBase().getLocation(),
                 target,
                 model
-        );
+        ));
+    }
 
-        this.entities.add(entity);
-
-        // Spawn
-        entity.spawn();
+    public void unload(Player player) {
+        this.entities.forEach(bedrockEntity -> bedrockEntity.removeViewer(player));
     }
 
     public void removeEntity(BedrockEntity entity) {
@@ -70,15 +69,15 @@ public class EntitiesManager {
                 .findFirst();
     }
 
-    public List<BedrockEntity> getViewedEntities(UUID uniqueId) {
+    public List<BedrockEntity> getViewedEntities(Player player) {
         return this.entities.stream()
-                .filter(bedrockEntity -> bedrockEntity.hasViewer(uniqueId))
+                .filter(bedrockEntity -> bedrockEntity.hasViewer(player))
                 .toList();
     }
 
-    public int getViewedEntitiesCount(UUID uniqueId) {
+    public int getViewedEntitiesCount(Player player) {
         return (int) this.entities.stream()
-                .filter(bedrockEntity -> bedrockEntity.hasViewer(uniqueId))
+                .filter(bedrockEntity -> bedrockEntity.hasViewer(player))
                 .count();
     }
 

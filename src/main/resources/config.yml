@@ -1,5 +1,5 @@
 data-send-delay: 5
-entity-view-distance: 50
-join-send-delay: 20
+entity-view-distance: 64
+join-send-delay: 10
 model-entity-type: BAT # must be a living entity
 maximum-models: 10

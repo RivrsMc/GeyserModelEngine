@@ -1,5 +1,7 @@
 package io.rivrs.geysermodelengine;
 
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,6 +12,8 @@ import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import io.rivrs.geysermodelengine.configuration.Configuration;
 import io.rivrs.geysermodelengine.entity.EntitiesManager;
 import io.rivrs.geysermodelengine.listener.ModelEngineListener;
+import io.rivrs.geysermodelengine.listener.PlayerListener;
+import io.rivrs.geysermodelengine.player.PlayersManager;
 import lombok.Getter;
 
 @Getter
@@ -19,6 +23,7 @@ public class GeyserModelEngine extends JavaPlugin {
     private Configuration configuration;
 
     // Managers
+    private PlayersManager players;
     private EntitiesManager entities;
 
     // State
@@ -42,17 +47,18 @@ public class GeyserModelEngine extends JavaPlugin {
         configuration.load();
 
         // Managers
+        this.players = new PlayersManager(this);
         this.entities = new EntitiesManager(this);
 
         // Packet events
-        //PacketEvents.getAPI().getEventManager().registerListener(new PacketEventsPacketListener());
+        //  PacketEvents.getAPI().getEventManager().registerListener(new EntityTeleportListener(this));
         PacketEvents.getAPI().init();
 
         // Events
-        Bukkit.getPluginManager().registerEvents(new ModelEngineListener(this), this);
-
-        // Commands
-        this.getCommand("test").setExecutor(new TestCommand(this));
+        List.of(
+                new ModelEngineListener(this),
+                new PlayerListener(this)
+        ).forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
 
         this.started = true;
     }
