@@ -1,7 +1,7 @@
 package io.rivrs.geysermodelengine.model;
 
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bukkit.Bukkit;
@@ -34,7 +34,7 @@ public class BedrockEntity extends PacketEntity {
     private final Key modelKey;
     private final ModeledEntity modeledEntity;
     private final ActiveModel activeModel;
-    private final Set<Player> viewers = new CopyOnWriteArraySet<>();
+    private final Set<Player> viewers = ConcurrentHashMap.newKeySet();
 
     // Cache
     private final Map<ModelBone, Boolean> lastModelBoneSet = new HashMap<>();
@@ -88,7 +88,7 @@ public class BedrockEntity extends PacketEntity {
         if (this.location.equals(location))
             return;
 
-        this.location = location.clone();
+        this.location = location;
         this.viewers.forEach(player -> this.teleport(player, location));
     }
 
