@@ -40,7 +40,7 @@ public class EntityViewersTask implements Runnable {
                     .forEach(player -> {
                         if (plugin.getPlayers().isInGracePeriod(player.getUniqueId())) {
                             this.gracePeriodPlayers.add(player.getUniqueId());
-                            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
                                 if (player.isOnline())
                                     entity.addViewer(player, plugin.getConfiguration().dataSendDelay());
                                 this.gracePeriodPlayers.remove(player.getUniqueId());

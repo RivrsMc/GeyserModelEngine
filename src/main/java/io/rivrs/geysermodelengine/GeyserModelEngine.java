@@ -13,8 +13,6 @@ import io.rivrs.geysermodelengine.configuration.Configuration;
 import io.rivrs.geysermodelengine.entity.EntitiesManager;
 import io.rivrs.geysermodelengine.listener.ModelEngineListener;
 import io.rivrs.geysermodelengine.listener.PlayerListener;
-import io.rivrs.geysermodelengine.listener.packet.ArmorStandListener;
-import io.rivrs.geysermodelengine.listener.packet.EntityTeleportListener;
 import io.rivrs.geysermodelengine.player.PlayersManager;
 import lombok.Getter;
 
