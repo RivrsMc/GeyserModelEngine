@@ -26,7 +26,7 @@ public class EntityUpdateTask implements Runnable {
                 || activeModel.isRemoved()
                 || !modeledEntity.getBase().isAlive()) {
                 this.handleRemoval(entity);
-                return;
+                continue;
             }
 
             // Teleport the entity to the meg model
@@ -46,7 +46,7 @@ public class EntityUpdateTask implements Runnable {
                 entity.animationProperty("modelengine:anim_idle");
 
             if (entity.getAnimationCooldown().get() > 0 || entity.getViewers().isEmpty())
-                return;
+                continue;
 
             // Update the model
             entity.updateEntityProperties(false);

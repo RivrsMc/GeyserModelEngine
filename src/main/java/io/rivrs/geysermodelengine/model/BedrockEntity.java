@@ -34,7 +34,7 @@ public class BedrockEntity extends PacketEntity {
     private final Key modelKey;
     private final ModeledEntity modeledEntity;
     private final ActiveModel activeModel;
-    private final Set<Player> viewers = ConcurrentHashMap.newKeySet();
+    private final Set<UUID> viewers = ConcurrentHashMap.newKeySet();
 
     // Cache
     private final Map<ModelBone, Boolean> lastModelBoneSet = new HashMap<>();
@@ -56,30 +56,42 @@ public class BedrockEntity extends PacketEntity {
 
     // Viewers
     public boolean hasViewer(Player player) {
-        return this.viewers.contains(player);
+        return this.viewers.contains(player.getUniqueId());
     }
 
-    public void addViewer(Player player) {
-        this.viewers.add(player);
+    public void addViewer(Player player, int delay) {
+        this.viewers.add(player.getUniqueId());
 
+        this.spawnBedrockEntity(player);
         Bukkit.getScheduler().runTaskLaterAsynchronously(JavaPlugin.getProvidingPlugin(GeyserModelEngine.class), () -> {
-            this.spawnBedrockEntity(player);
+            //this.spawnBedrockEntity(player);
             this.spawn(player);
             Bukkit.getScheduler().runTaskLaterAsynchronously(JavaPlugin.getProvidingPlugin(GeyserModelEngine.class), () -> {
                 if (looping)
                     playBedrockAnimation(player, lastAnimationName, true, 0f);
                 this.updateEntityProperties(player, true);
-                teleport(player, this.location);
             }, 8);
-        }, 5);
+        }, delay);
     }
 
     public void removeViewer(Player player) {
-        this.viewers.remove(player);
-        this.destroy(player);
+        this.removeViewer(player, false);
     }
 
-    public Set<Player> viewers() {
+    public void removeViewer(Player player, boolean disconnected) {
+        this.viewers.remove(player.getUniqueId());
+        if (!disconnected)
+            this.destroy(player);
+    }
+
+    public List<Player> viewersAsPlayers() {
+        return this.viewers.stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    public Set<UUID> viewers() {
         return Collections.unmodifiableSet(this.viewers);
     }
 
@@ -89,16 +101,16 @@ public class BedrockEntity extends PacketEntity {
             return;
 
         this.location = location;
-        this.viewers.forEach(player -> this.teleport(player, location));
+        this.viewersAsPlayers().forEach(player -> this.teleport(player, location));
     }
 
     public void destroy() {
-        this.viewers.forEach(this::destroy);
+        this.viewersAsPlayers().forEach(this::destroy);
     }
 
     // Bedrock
     public void updateEntityProperties(boolean force) {
-        this.viewers.forEach(player -> this.updateEntityProperties(player, force));
+        this.viewersAsPlayers().forEach(player -> this.updateEntityProperties(player, force));
     }
 
     public void updateEntityProperties(Player player, boolean force) {
@@ -145,7 +157,7 @@ public class BedrockEntity extends PacketEntity {
     }
 
     private void playBedrockAnimation(String name, boolean loop, float blendTime) {
-        for (Player viewer : viewers) {
+        for (Player viewer : viewersAsPlayers()) {
             playBedrockAnimation(viewer, name, loop, blendTime);
         }
     }

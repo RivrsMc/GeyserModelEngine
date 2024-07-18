@@ -13,6 +13,8 @@ import io.rivrs.geysermodelengine.configuration.Configuration;
 import io.rivrs.geysermodelengine.entity.EntitiesManager;
 import io.rivrs.geysermodelengine.listener.ModelEngineListener;
 import io.rivrs.geysermodelengine.listener.PlayerListener;
+import io.rivrs.geysermodelengine.listener.packet.ArmorStandListener;
+import io.rivrs.geysermodelengine.listener.packet.EntityTeleportListener;
 import io.rivrs.geysermodelengine.player.PlayersManager;
 import lombok.Getter;
 
@@ -51,7 +53,7 @@ public class GeyserModelEngine extends JavaPlugin {
         this.entities = new EntitiesManager(this);
 
         // Packet events
-        //  PacketEvents.getAPI().getEventManager().registerListener(new EntityTeleportListener(this));
+        //PacketEvents.getAPI().getEventManager().registerListener(new EntityTeleportListener());
         PacketEvents.getAPI().init();
 
         // Events

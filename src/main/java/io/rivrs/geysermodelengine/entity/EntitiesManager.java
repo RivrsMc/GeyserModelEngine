@@ -42,7 +42,7 @@ public class EntitiesManager {
     }
 
     public void unload(Player player) {
-        this.entities.forEach(bedrockEntity -> bedrockEntity.removeViewer(player));
+        this.entities.forEach(bedrockEntity -> bedrockEntity.removeViewer(player, true));
     }
 
     public void removeEntity(BedrockEntity entity) {

@@ -40,8 +40,6 @@ public abstract class PacketEntity {
     }
 
     public void teleport(Player player, Location destination) {
-        this.location = destination;
-
         WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport(
                 this.id,
                 SpigotConversionUtil.fromBukkitLocation(destination),
