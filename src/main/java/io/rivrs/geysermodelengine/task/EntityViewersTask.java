@@ -8,8 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.NumberConversions;
-import org.geysermc.floodgate.api.FloodgateApi;
 
+import io.rivrs.bedrockcore.api.BedrockAPI;
 import io.rivrs.geysermodelengine.GeyserModelEngine;
 import io.rivrs.geysermodelengine.configuration.Configuration;
 import io.rivrs.geysermodelengine.model.BedrockEntity;
@@ -34,7 +34,7 @@ public class EntityViewersTask implements Runnable {
                     .filter(player -> location.getWorld().equals(player.getWorld()))
                     .filter(player -> !entity.hasViewer(player))
                     .filter(player -> !gracePeriodPlayers.contains(player.getUniqueId()))
-                    .filter(player -> FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId()))
+                    .filter(BedrockAPI::isBedrockPlayer)
                     .filter(player -> player.getLocation().distanceSquared(location) <= NumberConversions.square(configuration.viewDistance()))
                     .filter(player -> this.plugin.getEntities().getViewedEntitiesCount(player) < configuration.maximumModels())
                     .forEach(player -> {

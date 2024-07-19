@@ -71,18 +71,18 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/geyserutils-spigot-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
-        <!-- floodgate -->
-        <dependency>
-            <groupId>org.geysermc.floodgate</groupId>
-            <artifactId>api</artifactId>
-            <version>2.2.2-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
         <!-- packetevents -->
         <dependency>
             <groupId>com.github.retrooper</groupId>
             <artifactId>packetevents-spigot</artifactId>
             <version>2.4.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- bedrock-core -->
+        <dependency>
+            <groupId>io.rivrs</groupId>
+            <artifactId>bedrock-core</artifactId>
+            <version>1.2.3</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
