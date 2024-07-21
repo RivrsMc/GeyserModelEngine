@@ -14,7 +14,6 @@ import com.ticxo.modelengine.api.model.ModeledEntity;
 
 import lombok.Getter;
 import re.imc.geysermodelengine.GeyserModelEngine;
-import re.imc.geysermodelengine.packet.entity.PacketEntity;
 
 @Getter
 public class ModelEntity {

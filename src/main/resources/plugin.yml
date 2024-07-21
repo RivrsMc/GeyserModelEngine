@@ -10,4 +10,4 @@ depend:
   - ModelEngine
   - floodgate
   - BedrockCore
-  - ProtocolLib
+  - packetevents
