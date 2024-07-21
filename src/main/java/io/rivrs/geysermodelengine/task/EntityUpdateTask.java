@@ -45,7 +45,10 @@ public class EntityUpdateTask implements Runnable {
             else if (entity.hasAnimation("idle"))
                 entity.animationProperty("modelengine:anim_idle");
 
-            if (entity.getAnimationCooldown().get() > 0 || entity.getViewers().isEmpty())
+            if (entity.getAnimationCooldown().get() > 0)
+                entity.getAnimationCooldown().decrementAndGet();
+
+            if (entity.getViewers().isEmpty())
                 continue;
 
             // Update the model

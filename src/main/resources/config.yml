@@ -3,3 +3,4 @@ entity-view-distance: 64
 join-send-delay: 10
 model-entity-type: BAT # must be a living entity
 maximum-models: 10
+parts-visibility: false

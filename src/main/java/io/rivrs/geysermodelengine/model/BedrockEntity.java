@@ -16,11 +16,9 @@ import org.slf4j.LoggerFactory;
 import com.ticxo.modelengine.api.animation.BlueprintAnimation;
 import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
-import com.ticxo.modelengine.api.model.bone.ModelBone;
 
 import io.github.retrooper.packetevents.util.SpigotReflectionUtil;
 import io.rivrs.geysermodelengine.GeyserModelEngine;
-import io.rivrs.geysermodelengine.utils.ModelUtils;
 import lombok.Getter;
 import me.zimzaza4.geyserutils.common.animation.Animation;
 import me.zimzaza4.geyserutils.spigot.api.EntityUtils;
@@ -37,7 +35,7 @@ public class BedrockEntity extends PacketEntity {
     private final Set<UUID> viewers = ConcurrentHashMap.newKeySet();
 
     // Cache
-    private final Map<ModelBone, Boolean> lastModelBoneSet = new HashMap<>();
+    //private final Map<ModelBone, Boolean> lastModelBoneSet = new HashMap<>();
 
     // Animations
     private final AtomicInteger animationCooldown = new AtomicInteger(0);
@@ -121,13 +119,13 @@ public class BedrockEntity extends PacketEntity {
 
     private void sendEntityProperties(Player player, boolean force) {
         Map<String, Boolean> properties = new HashMap<>();
-        for (ModelBone bone : this.activeModel.getBones().values()) {
-            if (!force && (lastModelBoneSet.containsKey(bone) && lastModelBoneSet.get(bone) == bone.isVisible()))
-                continue;
-
-            properties.put("%s:%s".formatted(this.modelKey.value(), ModelUtils.unstripName(bone)), bone.isVisible());
-            this.lastModelBoneSet.put(bone, bone.isVisible());
-        }
+//        for (ModelBone bone : this.activeModel.getBones().values()) {
+//            if (!force && (lastModelBoneSet.containsKey(bone) && lastModelBoneSet.get(bone) == bone.isVisible()))
+//                continue;
+//
+//            properties.put("%s:%s".formatted(this.modelKey.value(), ModelUtils.unstripName(bone)), bone.isVisible());
+//            this.lastModelBoneSet.put(bone, bone.isVisible());
+//        }
 
         if (force || !this.lastAnimationProperty.equals(currentAnimationProperty)) {
             properties.put(this.lastAnimationProperty, false);

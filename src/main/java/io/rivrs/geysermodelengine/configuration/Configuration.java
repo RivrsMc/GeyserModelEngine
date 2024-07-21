@@ -32,6 +32,10 @@ public class Configuration {
         return this.configuration.getInt("maximum-models", 10);
     }
 
+    public boolean partsVisibility() {
+        return this.configuration.getBoolean("parts-visibility", false);
+    }
+
     public EntityType modelEntityType() {
         try {
             return EntityType.valueOf(this.configuration.getString("model-entity-type", "BAT"));
