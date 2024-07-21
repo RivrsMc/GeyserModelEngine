@@ -26,7 +26,13 @@ import re.imc.geysermodelengine.listener.packets.MountPacketListener;
 import re.imc.geysermodelengine.model.ModelEntity;
 import re.imc.geysermodelengine.utils.Pair;
 
-@Getter
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
 public final class GeyserModelEngine extends JavaPlugin {
 
     @Getter
@@ -52,18 +58,25 @@ public final class GeyserModelEngine extends JavaPlugin {
     }
 
 
+    @Getter
+    private boolean initialized = false;
+
+    @Getter
+    private List<String> enablePartVisibilityModels = new ArrayList<>();
     @Override
     public void onEnable() {
-        // Config
-        this.configuration = new Configuration(this.getDataFolder().toPath().resolve("config.yml"));
-        this.configuration.load();
-
-        // Cache
-        if (this.configuration.joinSendDelay() > 0) {
-            this.joinedPlayer = CacheBuilder.newBuilder()
-                    .expireAfterWrite(this.configuration.joinSendDelay() * 50L, TimeUnit.MILLISECONDS).build();
-        } else {
-            this.joinedPlayer = CacheBuilder.newBuilder().build();
+        // Plugin startup logic
+        saveDefaultConfig();
+        // alwaysSendSkin = getConfig().getBoolean("always-send-skin");
+        sendDelay = getConfig().getInt("data-send-delay", 0);
+        viewDistance = getConfig().getInt("entity-view-distance", 60);
+        debug = getConfig().getBoolean("debug", false);
+        modelEntityType = EntityType.valueOf(getConfig().getString("model-entity-type", "BAT"));
+        joinSendDelay = getConfig().getInt("join-send-delay", 20);
+        enablePartVisibilityModels.addAll(getConfig().getStringList("enable-part-visibility-models"));
+        if (joinSendDelay > 0) {
+            joinedPlayer = CacheBuilder.newBuilder()
+                    .expireAfterWrite(joinSendDelay * 50L, TimeUnit.MILLISECONDS).build();
         }
 
         // Instance
