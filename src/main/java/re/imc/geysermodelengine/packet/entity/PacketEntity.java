@@ -1,18 +1,24 @@
 package re.imc.geysermodelengine.packet.entity;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import re.imc.geysermodelengine.packet.*;
-
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+import com.comphenix.protocol.ProtocolLibrary;
+
+import re.imc.geysermodelengine.packet.EntityDestroyPacket;
+import re.imc.geysermodelengine.packet.EntityHurtPacket;
+import re.imc.geysermodelengine.packet.EntitySpawnPacket;
+import re.imc.geysermodelengine.packet.EntityTeleportPacket;
+
 public class PacketEntity {
+
     public PacketEntity(EntityType type, Set<Player> viewers, Location location) {
         this.id = ThreadLocalRandom.current().nextInt(300000000, 400000000);
         this.uuid = UUID.randomUUID();
@@ -21,10 +27,10 @@ public class PacketEntity {
         this.location = location;
     }
 
-    private int id;
-    private UUID uuid;
-    private EntityType type;
-    private Set<Player> viewers;
+    private final int id;
+    private final UUID uuid;
+    private final EntityType type;
+    private final Set<Player> viewers;
     private Location location;
     private boolean removed = false;
 
@@ -63,12 +69,9 @@ public class PacketEntity {
     }
 
     public void sendLocationPacket(Collection<Player> players) {
-        WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport(
-                id,
-                SpigotConversionUtil.fromBukkitLocation(location),
-                true
-        );
-        PacketUtils.broadcast(players, packet);
+        EntityTeleportPacket packet = new EntityTeleportPacket(id, location);
+        players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet.encode()));
+
     }
 
     public void sendHurtPacket(Collection<Player> players) {
@@ -77,8 +80,8 @@ public class PacketEntity {
     }
 
     public void sendEntityDestroyPacket(Collection<Player> players) {
-        WrapperPlayServerDestroyEntities packet = new WrapperPlayServerDestroyEntities(id);
-        PacketUtils.broadcast(players, packet);
+        EntityDestroyPacket packet = new EntityDestroyPacket(id);
+        players.forEach(player -> ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet.encode()));
     }
 
     public int getEntityId() {
@@ -86,4 +89,3 @@ public class PacketEntity {
     }
 
 }
-

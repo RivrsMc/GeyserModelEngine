@@ -75,6 +75,13 @@
 
     <!-- dependencies -->
     <dependencies>
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.34</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- papermc -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
@@ -97,25 +104,18 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/geyserutils-spigot-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
-        <!-- floodgate -->
+        <!-- protocollib -->
         <dependency>
-            <groupId>org.geysermc.floodgate</groupId>
-            <artifactId>api</artifactId>
-            <version>2.2.2-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- packet events -->
-        <dependency>
-            <groupId>com.github.retrooper.packetevents</groupId>
-            <artifactId>spigot</artifactId>
-            <version>2.3.0</version>
+            <groupId>com.comphenix.protocol</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>5.1.0</version>
             <scope>provided</scope>
         </dependency>
         <!-- bedrock-core -->
         <dependency>
             <groupId>io.rivrs</groupId>
             <artifactId>bedrock-core</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.3</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -126,16 +126,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.13.0</version>
                 <configuration>
-                    <source>16</source>
-                    <target>16</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

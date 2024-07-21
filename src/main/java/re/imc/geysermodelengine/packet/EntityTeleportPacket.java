@@ -1,8 +1,9 @@
 package re.imc.geysermodelengine.packet;
 
+import org.bukkit.Location;
+
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
-import org.bukkit.Location;
 
 public class EntityTeleportPacket implements WrapperPacket {
 

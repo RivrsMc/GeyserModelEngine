@@ -5,11 +5,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.geysermc.floodgate.api.FloodgateApi;
 import org.joml.Vector3f;
 
 import com.ticxo.modelengine.api.animation.BlueprintAnimation;
@@ -18,29 +15,13 @@ import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
 import com.ticxo.modelengine.api.model.bone.ModelBone;
 
+import io.rivrs.bedrockcore.api.BedrockAPI;
 import lombok.Getter;
 import lombok.Setter;
 import me.zimzaza4.geyserutils.common.animation.Animation;
-import me.zimzaza4.geyserutils.spigot.GeyserUtils;
 import me.zimzaza4.geyserutils.spigot.api.EntityUtils;
 import me.zimzaza4.geyserutils.spigot.api.PlayerUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.geysermc.floodgate.api.FloodgateApi;
-import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3f;
 import re.imc.geysermodelengine.GeyserModelEngine;
-import re.imc.geysermodelengine.packet.entity.PacketEntity;
-
-import java.awt.*;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
-
-import static re.imc.geysermodelengine.model.ModelEntity.ENTITIES;
-import static re.imc.geysermodelengine.model.ModelEntity.MODEL_ENTITIES;
 import re.imc.geysermodelengine.packet.entity.PacketEntity;
 
 @Getter
@@ -108,10 +89,8 @@ public class EntityTask {
                 }.runTask(GeyserModelEngine.getInstance());
             }
 
-            ENTITIES.remove(modeledEntity.getBase().getEntityId());
-            MODEL_ENTITIES.remove(entity.getEntityId());
-            this.lastProperties.clear();
-            this.entityDatas.clear();
+            ModelEntity.ENTITIES.remove(modeledEntity.getBase().getEntityId());
+            ModelEntity.MODEL_ENTITIES.remove(entity.getEntityId());
             cancel();
             return;
         }
@@ -123,17 +102,16 @@ public class EntityTask {
         if (tick % 5 == 0) {
 
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (FloodgateApi.getInstance().isFloodgatePlayer(onlinePlayer.getUniqueId())) {
+                if (BedrockAPI.isBedrockPlayer(onlinePlayer)) {
 
                     if (canSee(onlinePlayer, model.getEntity())) {
+
                         if (!viewers.contains(onlinePlayer)) {
                             sendSpawnPacket(onlinePlayer);
                             viewers.add(onlinePlayer);
                         }
                     } else {
                         if (viewers.contains(onlinePlayer)) {
-                            this.lastProperties.remove(onlinePlayer.getUniqueId());
-                            this.entityDatas.remove(onlinePlayer.getUniqueId());
                             entity.sendEntityDestroyPacket(Collections.singletonList(onlinePlayer));
                             viewers.remove(onlinePlayer);
                         }
@@ -146,8 +124,6 @@ public class EntityTask {
                 for (Player viewer : Set.copyOf(viewers)) {
 
                     if (!canSee(viewer, model.getEntity())) {
-                        this.lastProperties.remove(viewer.getUniqueId());
-                        this.entityDatas.remove(viewer.getUniqueId());
                         viewers.remove(viewer);
                     }
                 }
@@ -186,8 +162,8 @@ public class EntityTask {
         updateEntityProperties(player.get(), false);
 
         // do not actually use this, atleast bundle these up ;(
-       // sendScale(player.get(), true);
-      //  sendColor(player.get(), true);
+        sendScale(player.get(), true);
+        sendColor(player.get(), true);
     }
 
     private void sendSpawnPacket(Player onlinePlayer) {
@@ -195,16 +171,16 @@ public class EntityTask {
         int delay = 1;
         boolean firstJoined = GeyserModelEngine.getInstance().getJoinedPlayer().getIfPresent(onlinePlayer) != null;
         if (firstJoined) {
-            delay = GeyserModelEngine.getInstance().getConfiguration().joinSendDelay();
+            delay = GeyserModelEngine.getInstance().getJoinSendDelay();
         }
         if (task == null || firstJoined) {
-            Bukkit.getScheduler().runTaskLaterAsynchronously(GeyserModelEngine.getInstance(), () -> model.getTask().sendEntityData(onlinePlayer, GeyserModelEngine.getInstance().getConfiguration().dataSendDelay()), delay);
+            Bukkit.getScheduler().runTaskLaterAsynchronously(GeyserModelEngine.getInstance(), () -> {
+                model.getTask().sendEntityData(onlinePlayer, GeyserModelEngine.getInstance().getSendDelay());
+            }, delay);
         } else {
-            task.sendEntityData(onlinePlayer, GeyserModelEngine.getInstance().getConfiguration().dataSendDelay());
+            task.sendEntityData(onlinePlayer, GeyserModelEngine.getInstance().getSendDelay());
         }
     }
-
-    private final Map<UUID, String> entityDatas = new HashMap<>();
 
     public void sendEntityData(Player player, int delay) {
         EntityUtils.setCustomEntity(player, model.getEntity().getEntityId(), "modelengine:" + model.getActiveModel().getBlueprint().getName().toLowerCase());
@@ -248,8 +224,6 @@ public class EntityTask {
         this.lastAnimProperty = currentAnimProperty;
         this.currentAnimProperty = currentAnimProperty;
     }
-
-    private final Map<UUID, Map<String, Boolean>> lastProperties = new HashMap<>();
 
     public void updateEntityProperties(Player player, boolean ignore) {
         int entity = model.getEntity().getEntityId();
@@ -297,6 +271,7 @@ public class EntityTask {
             if (!bone.getBlueprintBone().getBehaviors().get("head").isEmpty()) return "hi_" + name;
             return "h_" + name;
         }
+
         return name;
     }
 
@@ -408,28 +383,26 @@ public class EntityTask {
         if (!player.isOnline()) {
             return false;
         }
-
-        GeyserModelEngine geyserModelEngine = GeyserModelEngine.getInstance();
-        if (geyserModelEngine.getJoinedPlayer() != null && geyserModelEngine.getJoinedPlayer().getIfPresent(player) != null)
+        if (player.isDead()) {
             return false;
+        }
+        if (GeyserModelEngine.getInstance().getJoinedPlayer() != null && GeyserModelEngine.getInstance().getJoinedPlayer().getIfPresent(player) != null) {
+            return false;
+        }
 
         if (entity.getLocation().getChunk() == player.getChunk()) {
             return true;
+        }
 
-        Location playerLocation = player.getLocation();
-        Location entityLocation = entity.getLocation();
-        if (!Objects.equals(playerLocation.getWorld(), entityLocation.getWorld()))
+        if (player.getLocation().distanceSquared(entity.getLocation()) > player.getSimulationDistance() * player.getSimulationDistance() * 256) {
             return false;
-
-        double distanceSquared = playerLocation.distanceSquared(entityLocation);
-        double maxDistanceSquared = player.getSimulationDistance() * player.getSimulationDistance() * 256;
-        if (distanceSquared > maxDistanceSquared)
+        }
+        if (player.getLocation().distance(entity.getLocation()) > GeyserModelEngine.getInstance().getViewDistance()) {
             return false;
+        }
+        return true;
 
-        double maxViewDistance = geyserModelEngine.getConfiguration().viewDistance();
-        return !(playerLocation.distance(entityLocation) > maxViewDistance);
     }
-
 
     public void cancel() {
         // syncTask.cancel();
@@ -437,6 +410,7 @@ public class EntityTask {
     }
 
     public void run(GeyserModelEngine instance, int i) {
+
         String id = "";
         ActiveModel activeModel = model.getActiveModel();
         if (hasAnimation("spawn")) {
