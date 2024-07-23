@@ -70,14 +70,15 @@ public class EntityTask {
         ActiveModel activeModel = model.getActiveModel();
         ModeledEntity modeledEntity = model.getModeledEntity();
         if (activeModel.isDestroyed() || activeModel.isRemoved() || !modeledEntity.getBase().isAlive()) {
-            if (!activeModel.isRemoved() && hasAnimation("death")) {
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        removed = true;
-                        entity.remove();
-                    }
-                }.runTaskLater(GeyserModelEngine.getInstance(), Math.min(Math.max(playAnimation("death", 999, 5f, true) - 3, 0), 200));
+            if (!modeledEntity.getBase().isAlive() && hasAnimation("death")) {
+                if (!modeledEntity.getBase().isAlive())
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            removed = true;
+                            entity.remove();
+                        }
+                    }.runTaskLater(GeyserModelEngine.getInstance(), Math.min(Math.max(playAnimation("death", 999, 5f, true) - 3, 0), 200));
             } else {
                 new BukkitRunnable() {
                     @Override
@@ -184,9 +185,8 @@ public class EntityTask {
         Bukkit.getScheduler().runTaskLaterAsynchronously(GeyserModelEngine.getInstance(), () -> {
             model.getEntity().sendSpawnPacket(Collections.singletonList(player));
             Bukkit.getScheduler().runTaskLaterAsynchronously(GeyserModelEngine.getInstance(), () -> {
-                if (looping) {
-                    playBedrockAnimation(lastAnimation, Set.of(player), looping, 0f);
-                }
+                if (looping)
+                    playBedrockAnimation(lastAnimation, Set.of(player), true, 0f);
                 sendHitBox(player);
                 sendScale(player, true);
                 updateEntityProperties(player, true);
@@ -218,8 +218,13 @@ public class EntityTask {
     }
 
     public void setAnimationProperty(int currentAnimProperty) {
-        this.lastAnimProperty = currentAnimProperty;
-        this.currentAnimProperty = currentAnimProperty;
+        int toSend = 3;
+        if (animationCooldown.get() == 0) {
+            toSend = currentAnimProperty;
+        }
+        for (Player viewer : model.getViewers()) {
+            EntityUtils.sendVariant(viewer, model.getEntity().getEntityId(), toSend);
+        }
     }
 
     public void updateEntityProperties(Player player, boolean ignore) {
@@ -245,22 +250,10 @@ public class EntityTask {
             });
         }
 
-        int animationUpdate = -1;
-
-        if (ignore || !(lastAnimProperty == currentAnimProperty)) {
-            if (animationCooldown.get() == 0) {
-                animationUpdate = currentAnimProperty;
-            } else {
-                animationUpdate = 0;
-            }
-        }
-        if (animationUpdate != -1) {
-            EntityUtils.sendIntProperty(player, entity, ANIMATION_PROPERTY, animationUpdate);
-        }
         if (updates.isEmpty()) return;
-
         EntityUtils.sendBoolProperties(player, entity, updates);
     }
+
 
     private String unstripName(ModelBone bone) {
         String name = bone.getBoneId();
@@ -314,7 +307,6 @@ public class EntityTask {
             play = true;
         }
         looping = forceLoop || animationProperty.getLoopMode() == BlueprintAnimation.LoopMode.LOOP;
-        ;
 
         if (lastAnimation.equals(animation)) {
             if (looping) {
